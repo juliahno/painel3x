@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Servidores - GESIT 3X</title>
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="/stylesheets/bootstrap.css">
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="/stylesheets/style5.css">
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <a href="/"><img src="images/bblogo.jpg"></a>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><b>WEBLOGIC</b></a>
+                    <ul class="collapse list-unstyled" id="homeSubmenu">
+                        <%
+                            var list = '';
+                            var i = 0;
+                            
+                            while (i < (dados.length - 1)) {
+                                if (i < (dados.length - 2)) {
+                                    while (dados[i].aplicacao == dados[i+1].aplicacao) {
+                                        i++;
+                                    }
+                                }
+
+                                list += '<a id="' + dados[i].aplicacao + '" href="#" onclick="CarregaDivListaDeConsoles(' + dados[i].aplicacao + '); return false;">' + dados[i].aplicacao + '</a>';
+                                i++;
+                            }
+                        %>
+                        <%- list %>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><b>OHS</b></a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="#">Servidor</a>
+                        </li>
+                        <li>
+                            <a href="#">Outro servidor</a>
+                        </li>
+                        <li>
+                            <a href="#">Mais um servidor</a>
+                        </li>
+                    </ul>
+
+                    <a href="#"><b>BALANCEADORES</b></a>
+                </li>
+
+                <li>
+                    <a href="#"><b>LINKS DIVERSOS</b></a>
+                </li>
+            </ul>
+            
+            
+            <ul class="list-unstyled CTAs">
+                <li>
+                    <a target="_blank" href="https://gsti.bb.com.br" class="download">GSTI</a>
+                </li>
+                <li>
+                    <a target="_blank" href="https://pvmlscope01.intrabb.bb.com.br/SiteScope" class="article">Sitescope</a>
+                </li>
+            </ul>
+           
+        </nav>
+
+        <!-- Page Content Holder -->
+        <div id="content" style="width: 100%; overflow: hidden;">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">Servidores - GESIT 3X</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+              
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-secondary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Ambiente</button>
+                            
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="/">Produção CCT1</a>
+                                <a class="dropdown-item" href="/producao2">Produção CCT2</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item disabled" href="#">Homologação</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/desenvolvimento">Desenvolvimento</a>
+                            </div>
+                            <a>Homologação</a>
+                        </li>
+                    </ul>
+                 
+                    <form class="form-inline my-2 my-lg-0" name="formulario" method="get" action="/">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Busca" name="termo_busca" aria-label="Search">
+                        <button class="btn btn-outline-primary" type="submit" onclick="ExecutaBusca(); return false;">Buscar</button>
+                    </form>
+                </div>
+              </nav>
+
+            <ul>
+                <div id="lista_de_consoles" style="width: 20%; float: left;"></div>
+                <div id="info_console" style="margin-left: 30%;"></div>
+            </ul>
+
+        </div>
+    </div>
+
+    <script src="/js/jquery.js"></script>
+    <script src="/js/popper.js"></script>
+    <script src="/js/bootstrap.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+        });
+
+        function CarregaDivListaDeConsoles(aplicacao) {
+            document.getElementById("lista_de_consoles").innerHTML = '';
+            document.getElementById('info_console').innerHTML = '';
+            var consoles = '';
+            
+            consoles = '<table border="2" width="100%"><tr><th>Consoles</th></tr>';
+            <% for (var i = 0; i < dados.length; i++) { %>
+                if (<%= dados[i].aplicacao %> == aplicacao) { 
+                    consoles += '<tr>' +
+                        '<td>' +
+                            '<a href="#" class="text-primary" onclick="CarregaDivInfoConsole(\'<%= dados[i]._id %>\'); return false;"><%= dados[i]._id %></a>' +
+                        '</td>' +
+                        '<td align="center">' +
+                            '<a target="_blank" href="http://<%= dados[i].ip_console %>:<%= dados[i].porta_console %>/console"><img src="images/console.png"></a>' +
+                        '</td>' +
+                        '</tr>';
+                } 
+            <% } %>
+            consoles += '</table>';
+
+            document.getElementById("lista_de_consoles").innerHTML = consoles;
+        }
+
+        function CarregaDivInfoConsole(id_console) {
+            var tabela_console = ''
+
+            <% for (var j = 0; j < dados.length; j++) { %>
+                if ('<%= dados[j]._id %>' == id_console) {
+                    tabela_console = '<table border="2" width="100%">' + 
+                            '<tr>' +
+                            '<th>Console</th>' +
+                            '<td colspan="3"><a target="_blank" href="http://<%= dados[j].ip_console %>:<%= dados[j].porta_console %>/console" class="text-primary"><%= dados[j]._id %></a></th>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>Plataforma</th>' +
+                            '<td colspan="3"><%= dados[j].so %></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>Aplicacao</th>' +
+                            '<td colspan="3"><%= dados[j].aplicacao %></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>IP Console</th>' +
+                            '<td colspan="3"><%= dados[j].ip_console %></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>Porta Console</th>' +
+                            '<td colspan="3"><%= dados[j].porta_console %></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>Dominio</th>' +
+                            '<td colspan="3"><%= dados[j].dominio %></td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th colspan="4">Instancias</td>' +
+                            '</tr>' +
+                            '<tr>' +
+                            '<th>Nome</th>' +
+                            '<th>IP</th>' +
+                            '<th>Porta</th>' +
+                            '<th>Machine</th>' +
+                            '</tr>';
+
+                    <% for (var k = 0; k < dados[j].instancias.length; k++) { %>
+                        tabela_console += '<tr><td><%= dados[j].instancias[k].nome_instancia %></td>' +
+                        '<td><%= dados[j].instancias[k].ip_instancia %></td>' +
+                        '<td><%= dados[j].instancias[k].porta_instancia %></td>' +
+                        '<td><%= dados[j].instancias[k].machine %></td></tr>';
+                    <% } %>
+                    tabela_console += '</table>';
+                    tabela_console += '<p align="right">Atualizado em: <%= dados[j].data %></p>';
+                } 
+            <% } %>
+            document.getElementById('info_console').innerHTML = tabela_console;
+        }
+
+        function ExecutaBusca() {
+            var termo_busca = document.formulario.termo_busca.value;
+            var consoles = '';
+
+            document.getElementById("lista_de_consoles").innerHTML = '';
+            document.getElementById('info_console').innerHTML = '';
+
+            console_localizada = 0
+
+            consoles = '<table border="2" width="100%"><tr><th>Consoles</th></tr>';
+            <% for (var i = 0; i < dados.length; i++) { %>
+                if ('<%= dados[i]._id %>'.toLowerCase().includes(termo_busca.toLowerCase())) { 
+                    console_localizada = 1;
+                } else if ('<%= dados[i].ip_console %>'.includes(termo_busca)) { 
+                    console_localizada = 1;
+                } else {
+                    <% for (var j = 0; j < dados[i].instancias.length; j++) { %>
+                        if ('<%= dados[i].instancias[j].nome_instancia %>'.toLowerCase().includes(termo_busca.toLowerCase())) {
+                            console_localizada = 1;
+                        } else if ('<%= dados[i].instancias[j].ip_instancia %>'.includes(termo_busca)) {
+                            console_localizada = 1;
+                        } else if ('<%= dados[i].instancias[j].machine %>'.toLowerCase().includes(termo_busca.toLowerCase())) {
+                            console_localizada = 1;
+                        }
+                    <% } %>
+                }
+
+                if (console_localizada == 1) {
+                    consoles += '<tr>' +
+                        '<td>' +
+                            '<a href="#" class="text-primary" onclick="CarregaDivInfoConsole(\'<%= dados[i]._id %>\'); return false;"><%= dados[i]._id %></a>' +
+                        '</td>' +
+                        '<td align="center">' +
+                            '<a target="_blank" href="http://<%= dados[i].ip_console %>:<%= dados[i].porta_console %>/console"><img src="images/console.png"></a>' +
+                        '</td>' +
+                        '</tr>';
+                    console_localizada = 0
+                }
+            <% } %>
+            consoles += '</table>';
+
+            document.getElementById("lista_de_consoles").innerHTML = consoles;
+        }
+    </script>
+</body>
+
+</html>
